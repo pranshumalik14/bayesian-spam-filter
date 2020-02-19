@@ -3,6 +3,8 @@
 
 #include <fstream>
 #include <string>
+#include <eigen3/Eigen/Eigen>
+#include <array>
 #include <unordered_map>
 #include <boost/filesystem.hpp>
 #include "matplotlib.h"
@@ -10,6 +12,7 @@
 /**** type definitions ****/
 enum EmailClass {SPAM = 0, HAM = 1};
 typedef long double Prob;                                   // probability
+typedef std::string DirPath;                                // folder path
 typedef std::string FilePath;                               // file path
 typedef std::vector<FilePath> FileList;                     // list of file paths
 typedef std::vector<std::string> WordList;                  // list of words (with repetition and unsorted)
@@ -19,18 +22,22 @@ typedef std::array<FileList, 2> FileListPair;               // two-element array
 typedef std::array<ProbDict, 2> ProbDictPair;               // two-element array of probability dictionaries
 typedef std::array<Prob, 2> ProbPair;                       // two-element array of probabilities
 typedef std::pair<EmailClass, ProbPair> Classification;     // a pair of email class and two-element array of probabilities
+typedef Eigen::Matrix2i PerformanceMatrix;                  // 2x2 matrix containing number of emails classified as:
+                                                            // [ #(SPAM|SPAM)   ;   #(HAM|SPAM)
+                                                            //   #(SPAM|HAM)    ;   #(HAM|HAM) ]
 
 namespace plt = matplotlibcpp;
 namespace fs = boost::filesystem;
 
 /**** function prototypes ****/
-FileList get_files_in_folder(const FilePath&, const std::string& extension = ".txt");
+FileList get_files_in_folder(const DirPath&, const std::string& extension = ".txt");
 WordList get_words_in_file(const FilePath&);
-FreqDict get_word_freq(const FileList& files);
-void plot_probabilities(const ProbDict& prob_dict);
+FreqDict get_word_freq(const FileList&);
+EmailClass get_email_label(const FilePath&);
+void plot_probabilities(const ProbDict&);
 
 /**** functions ****/
-FileList get_files_in_folder(const FilePath& dir_path, const std::string& extension)
+FileList get_files_in_folder(const DirPath& dir_path, const std::string& extension)
 {
     FileList file_list;
     fs::path path = fs::system_complete(dir_path);
@@ -74,6 +81,15 @@ FreqDict get_word_freq(const FileList& files)
     }
 
     return freq_dict;
+}
+
+EmailClass get_email_label(const FilePath& email_path)
+{
+    std::string file_name = fs::path(email_path).filename().string();
+
+    if (file_name.find("spam") != std::string::npos)
+       return EmailClass::SPAM;
+    return EmailClass::HAM;
 }
 
 void plot_probabilities(const ProbDict& prob_dict)

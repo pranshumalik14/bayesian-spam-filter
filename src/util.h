@@ -8,12 +8,17 @@
 #include "matplotlib.h"
 
 /**** type definitions ****/
+enum EmailClass {SPAM = 0, HAM = 1};
+typedef long double Prob;                                   // probability
 typedef std::string FilePath;                               // file path
 typedef std::vector<FilePath> FileList;                     // list of file paths
 typedef std::vector<std::string> WordList;                  // list of words (with repetition and unsorted)
-typedef std::unordered_map<std::string, double> ProbDict;   // dictionary of probabilities
+typedef std::unordered_map<std::string, Prob> ProbDict;     // dictionary of probabilities
 typedef std::unordered_map<std::string, size_t> FreqDict;   // dictionary of frequencies
-enum CLASS {SPAM, HAM};
+typedef std::array<FileList, 2> FileListPair;               // two-element array of file lists
+typedef std::array<ProbDict, 2> ProbDictPair;               // two-element array of probability dictionaries
+typedef std::array<Prob, 2> ProbPair;                       // two-element array of probabilities
+typedef std::pair<EmailClass, ProbPair> Classification;     // a pair of email class and two-element array of probabilities
 
 namespace plt = matplotlibcpp;
 namespace fs = boost::filesystem;

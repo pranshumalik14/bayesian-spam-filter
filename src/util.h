@@ -21,6 +21,7 @@ typedef std::unordered_map<std::string, size_t> FreqDict;   // dictionary of fre
 typedef std::array<FileList, 2> FileListPair;               // two-element array of file lists
 typedef std::array<ProbDict, 2> ProbDictPair;               // two-element array of probability dictionaries
 typedef std::array<Prob, 2> ProbPair;                       // two-element array of probabilities
+typedef std::array<double, 2> ErrorPair;                    // two-element array of type 1 and 2 errors
 typedef std::pair<EmailClass, ProbPair> Classification;     // a pair of email class and two-element array of probabilities
 typedef Eigen::Matrix2i PerformanceMatrix;                  // 2x2 matrix containing number of emails classified as:
                                                             // [ #(SPAM|SPAM)   ;   #(HAM|SPAM)
@@ -38,7 +39,6 @@ WordList get_words_in_file(const FilePath&);
 FreqDict get_word_freq_in_files(const FileList&);
 FreqDict get_word_freq_in_file(const FilePath&);
 EmailClass get_email_label(const FilePath&);
-void plot_probabilities(const ProbDict&);
 
 /**** functions ****/
 FileList get_files_in_folder(const DirPath& dir_path, const std::string& extension)
@@ -106,39 +106,6 @@ EmailClass get_email_label(const FilePath& email_path)
     if (file_name.find("spam") != std::string::npos)
        return EmailClass::SPAM;
     return EmailClass::HAM;
-}
-
-void plot_probabilities(const ProbDict& prob_dict)
-{
-//    std::vector<double> x, y;
-//    size_t lbl_cnt = 1;
-//
-//    // plot all map points
-//    for (const Point& p : pnt_arr)
-//    {
-//        x.push_back(p[0]);
-//        y.push_back(p[1]);
-//    }
-//    plt::scatter(x, y, 3);
-//
-//    // plot k nearest points and annotate
-//    x.clear();
-//    y.clear();
-//    for (const Point& p : k_arr)
-//    {
-//        x.push_back(p[0]);
-//        y.push_back(p[1]);
-//        plt::annotate(std::to_string(lbl_cnt), p[0], p[1]);
-//        lbl_cnt++;
-//    }
-//    plt::scatter(x, y, 15);
-//
-//    // plot input point and annotate
-//    plt::annotate("IN", usr_pnt[0], usr_pnt[1]);
-//    plt::scatter(std::vector<double>{usr_pnt[0]}, std::vector<double>{usr_pnt[1]}, 20);
-//
-//    plt::title("kNN Search Result");
-//    plt::show();
 }
 
 #endif //CLASSIFIER_UTIL_H

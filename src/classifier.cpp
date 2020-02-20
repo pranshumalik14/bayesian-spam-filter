@@ -15,7 +15,7 @@ ProbDictPair learn_distributions(const FileListPair&);
 Classification classify_new_email(const FilePath&, const ProbDictPair&,
     double zeta = 1.0, const ProbPair& prior_by_category = {SPAM_PRIOR, HAM_PRIOR});
 Prob prob_class_intrsct_words(const ProbDict&, const FreqDict&, const Prob&, const EmailClass&);
-void evaluate_filter_performance(const DirPath&, const ProbDictPair&,
+ErrorPair evaluate_filter_performance(const DirPath&, const ProbDictPair&,
     double zeta = 1.0, const ProbPair& prior_by_category = {SPAM_PRIOR, HAM_PRIOR});
 
 /**** functions ****/
@@ -154,8 +154,11 @@ Prob prob_class_intrsct_words(const ProbDict& word_class_prob, const FreqDict& w
  *  then the email will be classified as SPAM, and HAM otherwise (empirically optimized).
  * @param prior_by_category : A two-element array as prior probability distribution
  *  for SPAM and HAM email classes
+ * @return ErrorPair of [Type 1 error, Type 2 error] where type 1 error corresponds to the
+ *  fraction of SPAM emails misclassified as HAM, and type 2 error corresponds to the fraction
+ *  of HAM emails misclassified as SPAM
  */
-void evaluate_filter_performance(const DirPath& test_dir, const ProbDictPair& probabilities_by_category,
+ErrorPair evaluate_filter_performance(const DirPath& test_dir, const ProbDictPair& probabilities_by_category,
     double zeta, const ProbPair& prior_by_category)
 {
     // performance evaluation matrix:
@@ -182,7 +185,7 @@ void evaluate_filter_performance(const DirPath& test_dir, const ProbDictPair& pr
         perf_mat(true_idx, classify_idx) += 1;
     }
 
-    // get total number of spam and ham emails
+    // get total number of spam and ham emails in the testing dataset
     int total_spam = perf_mat(0,0) + perf_mat(0,1);
     int total_ham = perf_mat(1,0) + perf_mat(1,1);
 
@@ -190,11 +193,12 @@ void evaluate_filter_performance(const DirPath& test_dir, const ProbDictPair& pr
     std::cout << "Correctly classified " << perf_mat.diagonal()(0) << " out of "
         << total_spam << " spam emails, and " << perf_mat.diagonal()(1) << " out of "
         << total_ham << " ham emails" << std::endl;
-}
 
-// TODO: Write your code here to modify the decision rule such that
-//  errors can be traded off, and plot the trade-off curve (modify zeta)
-// TODO: Pre-train bayesian filter and store in pretrain.txt to make classification faster.
+    // return array of type 1 and type 2 errors
+    double type_1_error = (double) perf_mat(0,1)/ (double) total_spam;
+    double type_2_error = (double) perf_mat(1,0)/ (double) total_ham;
+    return {type_1_error, type_2_error};
+}
 
 /**** main ****/
 int main()
@@ -212,8 +216,34 @@ int main()
     // learn distributions from training data
     ProbDictPair probabilities_by_category = learn_distributions(training_files);
 
-    // classify test emails and evaluate performance
-    evaluate_filter_performance(test_dir, probabilities_by_category);
+    // classify test emails and evaluate performance for \zeta \in [0.0, 1.0]
+    std::vector<double> type_1_error;
+    std::vector<double> type_2_error;
+    ErrorPair classify_error;
+    std::vector<double> zeta(1, 0.0);
+    double dz = 0.1;
 
+    while (zeta.back() <= 1.0)
+    {
+        classify_error = evaluate_filter_performance(test_dir, probabilities_by_category, zeta.back());
+        type_1_error.push_back(classify_error[0]);
+        type_2_error.push_back(classify_error[1]);
+        zeta.push_back(zeta.back() + dz);
+    }
+
+    // plot and save results
+    zeta.pop_back();
+    plt::plot(zeta, type_1_error,  {{"label", "Type 1 Error"}});
+    plt::plot(zeta, type_2_error, {{"label", "Type 2 Error"}});
+    plt::xlabel("zeta");
+    plt::ylabel("Error");
+    plt::title("Error Trade-off Curve");
+    plt::legend();
+    plt::save("../error_tradeoff_curve.png");
+    plt::show(); // blocking display
+
+    // trade-off curves meet at the optimal zeta* ≈ 0.88.
+    std::cout << "------- OPTIMAL ZETA -------" << std::endl;
+    evaluate_filter_performance(test_dir, probabilities_by_category, 0.88);
     return 0;
 }

@@ -3,9 +3,10 @@
 
 #include <fstream>
 #include <string>
-#include <eigen3/Eigen/Eigen>
 #include <array>
 #include <unordered_map>
+#include <eigen3/Eigen/Eigen>
+#include <boost/math/special_functions/factorials.hpp>
 #include <boost/filesystem.hpp>
 #include "matplotlib.h"
 
@@ -28,11 +29,16 @@ typedef Eigen::Matrix2i PerformanceMatrix;                  // 2x2 matrix contai
 
 namespace plt = matplotlibcpp;
 namespace fs = boost::filesystem;
+namespace bsm = boost::math;
+
+extern size_t num_spam_emails;
+extern size_t num_ham_emails;
 
 /**** function prototypes ****/
 FileList get_files_in_folder(const DirPath&, const std::string& extension = ".txt");
 WordList get_words_in_file(const FilePath&);
-FreqDict get_word_freq(const FileList&);
+FreqDict get_word_freq_in_files(const FileList&);
+FreqDict get_word_freq_in_file(const FilePath&);
 EmailClass get_email_label(const FilePath&);
 void plot_probabilities(const ProbDict&);
 
@@ -68,7 +74,7 @@ WordList get_words_in_file(const FilePath& file_path)
     return word_list;
 }
 
-FreqDict get_word_freq(const FileList& files)
+FreqDict get_word_freq_in_files(const FileList& files)
 {
     FreqDict freq_dict;
 
@@ -79,6 +85,18 @@ FreqDict get_word_freq(const FileList& files)
             if (!word.empty())
                 ++freq_dict[word];
     }
+
+    return freq_dict;
+}
+
+FreqDict get_word_freq_in_file(const FilePath& file_path)
+{
+    FreqDict freq_dict;
+
+    WordList words = get_words_in_file(file_path);
+    for (const std::string& word : words)
+        if (!word.empty())
+            ++freq_dict[word];
 
     return freq_dict;
 }

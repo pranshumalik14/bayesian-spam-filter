@@ -128,18 +128,18 @@ Prob prob_class_intrsct_words(const ProbDict& word_class_prob, const FreqDict& w
             prob_word_given_class += (email_class == EmailClass::SPAM) ?
                     log((Prob) 1/ (Prob) (num_spam_emails + 2)) : log((Prob) 1/ (Prob) (num_ham_emails + 2));
             num += 1;
-            den *= 1;
+            den = den; // den += log(1)
         }
         else
         {
             prob_word_given_class += (word.second)*log(word_class_prob.at(word.first));
             num += word.second;
-            den *= bsm::factorial<long double>(word.second);
+            den += lgamma(word.second + 1.0);
         }
     }
 
     // update intersection probability
-    prob_cls_int_wrd += log(bsm::factorial<long double>((Prob) num)/den);
+    prob_cls_int_wrd += lgamma(num + 1.0) - den;
     prob_cls_int_wrd += prob_word_given_class;
 
     return prob_cls_int_wrd;

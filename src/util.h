@@ -6,7 +6,6 @@
 #include <array>
 #include <unordered_map>
 #include <eigen3/Eigen/Eigen>
-#include <boost/math/special_functions/factorials.hpp>
 #include <boost/filesystem.hpp>
 #include "matplotlib.h"
 
@@ -29,7 +28,6 @@ typedef Eigen::Matrix2i PerformanceMatrix;                  // 2x2 matrix contai
 
 namespace plt = matplotlibcpp;
 namespace fs = boost::filesystem;
-namespace bsm = boost::math;
 
 extern size_t num_spam_emails;
 extern size_t num_ham_emails;

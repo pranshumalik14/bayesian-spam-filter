@@ -10,7 +10,7 @@ We can express the probability of the email appearing in a particular class as !
 To classify the email as by picking the the class which has a higher probability than the other. For spam, this will happen when
 ![decision](eqns/log_probability_comparison.png).
 
-Since filter needs to be less tolerant of spam, we need to lower the "threshold". Therefore, we introduce a decision factor, ![zeta](eqns/zeta.png), that takes values ranging from
+Since we are less tolerant of spam, the filter needs to lower the "threshold" to classify an email as spam. Therefore, we introduce a decision factor, ![zeta](eqns/zeta.png), that takes a value ranging from
 0 to 1. We can now classify the email as spam if ![decision](eqns/zeta_decision_factor.png) and ham otherwise. 
 To evaluate performance of the filter over different values of ![zeta](eqns/zeta.png), we define the following errors,   
  - Type 1 error: fraction of spam emails misclassified as ham
@@ -19,4 +19,4 @@ To evaluate performance of the filter over different values of ![zeta](eqns/zeta
 The error trade-off curve can be seen below:
 ![ErrorTradeOffCurve](error_tradeoff_curve.png)
 
-The optimal value of the decision factor is when both errors curves meet and are sufficiently low, which happens at ![zeta](eqns/zeta.png) = 0.88. At this value, the filter correctly classifies 42 out of 49 spam emails and 44 out of 51 ham emails in the testing dataset which can be found in `data/testing/`.
+The optimal value of the decision factor is when both error curves meet and are sufficiently low, which happens at ![zeta](eqns/zeta.png) = 0.88. At this value, the filter correctly classifies 42 out of 49 spam emails and 44 out of 51 ham emails in the testing dataset which can be found in `data/testing/`.

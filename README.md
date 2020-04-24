@@ -1,7 +1,5 @@
 # bayesian-spam-filter
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1ef7c93ed9dd4fc89a3c016fa704b9a1)](https://app.codacy.com/manual/pranshumalik14/bayesian-spam-filter?utm_source=github.com&utm_medium=referral&utm_content=pranshumalik14/bayesian-spam-filter&utm_campaign=Badge_Grade_Settings)
-
 For every word, ![w_i](eqns/w_i.png), a smoothed estimate of its probability of appearing in either email class (spam or ham), 
 ![p_word_given_class](eqns/p_word_given_class.png), is calculated by iterating over the training files in `data/spam/` and  `data/ham/`.
 
